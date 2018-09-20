@@ -15,7 +15,10 @@ base_url = 'https://www.naukri.com/python-jobs'
 req = urllib.request.Request(base_url, headers={'User-Agent': 'Mozilla/5.0'})
 source = urllib.request.urlopen(req).read()
 
+# Using BeautifulSoup extract the HTML
 soup = bs4.BeautifulSoup(source,"lxml")
+
+#Extracting numbe rof jobs and pages
 num_jobs = int(soup.find("span",{"class":"cnt"}).getText().split(' ')[-1])
 tot_num_pages = int(math.ceil(num_jobs/50.0))
 num_pages = input('Enter the number of pages:')
@@ -23,6 +26,7 @@ num_pages = input('Enter the number of pages:')
 labels = ['Salary','Industry', 'Functional Area', 'Role Category', 'Design Role']
 naukri_df = pd.DataFrame()
 
+#Extracting all the links in each pages
 for page in range(1,int(num_pages)):
     #print(str(page))
     page_url = base_url+'-'+str(page)
@@ -35,6 +39,7 @@ for page in range(1,int(num_pages)):
         links.append(link.get('href'))
     if 'job-listings' in str(links):
         all_links = links
+    # Extracting required information in each link
     for url in all_links:
         url_new = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
         jd_source = urllib.request.urlopen(url_new).read()
@@ -60,6 +65,7 @@ for page in range(1,int(num_pages)):
 column_names = ['Location','Link','Job Description','Experience','Salary','Industry','Functional Area','Role Category','Design Role','Skills','Company Name']
 naukri_df = naukri_df.reindex(columns=column_names)
 
+#Exporting the data to a csv file
 naukri_df.to_csv('naukri.csv') 
 naukri_df.shape
 naukri_df.head()
